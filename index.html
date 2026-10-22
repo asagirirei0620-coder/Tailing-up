@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TYPE BATTLE Z</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden}
+body{
+    font-family:Arial,"Noto Sans JP",sans-serif;
+    background:#05070d;
+    color:#fff;
+}
+button{font-family:inherit;cursor:pointer}
+button:focus{outline:none}
+
+#startScreen,#resultScreen{
+    width:100%;
+    height:100%;
+    overflow:auto;
+    background:
+        radial-gradient(circle at 50% 10%,#1b2b5a 0,#0b1020 45%,#04060b 100%);
+}
+.startWrap{
+    width:min(1200px,94vw);
+    margin:auto;
+    padding:42px 0 70px;
+}
+.logo{
+    text-align:center;
+    font-size:clamp(42px,7vw,82px);
+    font-weight:900;
+    letter-spacing:9px;
+}
+.logoSub{
+    text-align:center;
+    color:#7f91ba;
+    margin:5px 0 35px;
+}
+.panel{
+    background:rgba(9,14,27,.97);
+    border:1px solid #2b3b5d;
+    border-radius:24px;
+    padding:28px;
+    box-shadow:0 25px 80px rgba(0,0,0,.35);
+}
+.titleSmall{
+    color:#6e80a8;
+    font-size:12px;
+    letter-spacing:2px;
+    margin-bottom:12px;
+}
+.rankButtons{
+    display:grid;
+    grid-template-columns:repeat(9,1fr);
+    gap:8px;
+}
+.rankBtn{
+    border:1px solid #30405f;
+    background:#11182a;
+    color:#aab7d3;
+    border-radius:12px;
+    padding:14px 5px;
+    font-weight:800;
+    font-size:17px;
+    transition:.15s;
+}
+.rankBtn:hover{transform:translateY(-2px)}
+.rankBtn.selected{
+    background:#415bc1;
+    border-color:#91a5ff;
+    color:#fff;
+    box-shadow:0 0 25px rgba(76,108,255,.28);
+}
+.selectedInfo{
+    text-align:center;
+    color:#657493;
+    margin:20px 0;
+}
+.selectedInfo strong{
+    color:#fff;
+    font-size:25px;
+}
+.startButton{
+    width:100%;
+    padding:18px;
+    border:0;
+    border-radius:15px;
+    background:linear-gradient(135deg,#4c70ff,#744cff);
+    color:#fff;
+    font-size:22px;
+    font-weight:900;
+}
+.startHelp{
+    text-align:center;
+    color:#53627e;
+    margin-top:12px;
+    font-size:12px;
+}
+.zInfo{
+    margin-top:20px;
+    padding:17px;
+    border:1px solid #263655;
+    border-radius:14px;
+    background:#0b1120;
+}
+.zInfoTitle{
+    color:#9aaaff;
+    font-weight:800;
+    margin-bottom:8px;
+}
+.zInfo p{
+    margin:4px 0;
+    color:#647494;
+    font-size:13px;
+}
+
+/* battle */
+#battleScreen{
+    width:100%;
+    height:100%;
+    display:none;
+}
+.topbar{
+    height:68px;
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    background:#0b101c;
+    border-bottom:1px solid #252f48;
+}
+.topStat{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+.topStat span{
+    color:#596987;
+    font-size:10px;
+    letter-spacing:1px;
+}
+.topStat strong{
+    font-size:21px;
+    margin-top:2px;
+}
+.battleBody{
+    height:calc(100% - 68px);
+    display:flex;
+    flex-direction:column;
+    padding:14px 22px;
+}
+.fighters{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+.fighter{
+    background:linear-gradient(145deg,#11192b,#0a0f19);
+    border:1px solid #2a3a5b;
+    border-radius:17px;
+    padding:14px 18px;
+}
+.fighter.enemy{
+    background:linear-gradient(145deg,#21131b,#0f0a11);
+    border-color:#522b38;
+}
+.fighterHeader{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.fighterName{
+    font-size:20px;
+    font-weight:900;
+}
+.fighterRank{
+    color:#88a1ff;
+    font-weight:900;
+}
+.enemy .fighterRank{color:#ff8295}
+.enemyIcon{
+    float:right;
+    font-size:38px;
+    margin-top:-5px;
+}
+.hpOuter{
+    width:100%;
+    height:14px;
+    background:#06090e;
+    border-radius:99px;
+    overflow:hidden;
+    margin-top:15px;
+}
+.hpBar{
+    height:100%;
+    width:100%;
+    transition:width .12s;
+}
+.playerBar{background:#4f8dff}
+.enemyBar{background:#ff4f6c}
+.hpBottom{
+    display:flex;
+    justify-content:space-between;
+    margin-top:5px;
+    color:#62708b;
+    font-size:11px;
+}
+
+.typingArea{
+    flex:1;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+.phraseBox{
+    width:min(1250px,96vw);
+    max-height:65vh;
+    padding:23px 27px 20px;
+    border:1px solid #33486f;
+    border-radius:21px;
+    background:#0d1424;
+    box-shadow:0 15px 55px rgba(0,0,0,.25);
+}
+.phraseLabel{
+    color:#62749b;
+    font-size:11px;
+    letter-spacing:2px;
+    margin-bottom:9px;
+}
+.phrase{
+    font-size:clamp(27px,3.8vw,49px);
+    line-height:1.5;
+    font-weight:900;
+    word-break:break-all;
+    max-height:31vh;
+    overflow:auto;
+    padding-right:5px;
+}
+.charDone{
+    color:#55d49b;
+}
+.charCurrent{
+    color:#fff;
+    border-bottom:3px solid #7696ff;
+    text-shadow:0 0 14px rgba(105,138,255,.4);
+}
+.charTodo{
+    color:#52607a;
+}
+.progressOuter{
+    height:9px;
+    margin-top:16px;
+    background:#06090f;
+    border-radius:99px;
+    overflow:hidden;
+}
+.progressBar{
+    width:0;
+    height:100%;
+    background:linear-gradient(90deg,#5c83ff,#9863ff);
+    transition:width .08s;
+}
+.inputInfo{
+    display:flex;
+    justify-content:space-between;
+    gap:20px;
+    margin-top:11px;
+    color:#61718e;
+    font-size:12px;
+}
+.inputInfo strong{color:#c8d2e7}
+.romajiBox{
+    margin-top:9px;
+    padding:10px 12px;
+    border-radius:9px;
+    background:#070b13;
+    color:#53617a;
+    font-family:monospace;
+    font-size:13px;
+    white-space:nowrap;
+    overflow:hidden;
+}
+.romajiTyped{color:#5fdda2}
+.romajiRemain{color:#4c5870}
+.analysis{
+    margin-top:8px;
+    min-height:18px;
+    color:#7081a1;
+    font-size:12px;
+}
+.analysis b{color:#aab9ff}
+.nextPhrase{
+    width:min(1000px,94vw);
+    text-align:center;
+    margin-top:11px;
+    color:#4d5b76;
+    font-size:13px;
+}
+.nextPhrase span{color:#7887a5}
+.attackStats{
+    display:flex;
+    gap:25px;
+    margin-top:11px;
+    color:#687793;
+    font-size:13px;
+}
+.attackStats strong{color:#fff}
+.comboStrong{color:#ffd25b!important}
+.hint{
+    color:#46536b;
+    font-size:10px;
+    margin-top:7px;
+}
+#flash{
+    position:fixed;
+    inset:0;
+    background:rgba(255,40,60,.35);
+    opacity:0;
+    pointer-events:none;
+}
+#flash.on{animation:flash .22s}
+@keyframes flash{
+    from{opacity:1}
+    to{opacity:0}
+}
+
+/* result */
+#resultScreen{
+    display:none;
+    justify-content:center;
+    align-items:center;
+}
+.resultPanel{
+    width:min(900px,94vw);
+    padding:35px;
+    background:#0c111f;
+    border:1px solid #2a3857;
+    border-radius:24px;
+    text-align:center;
+}
+.resultTitle{
+    font-size:48px;
+    font-weight:900;
+    letter-spacing:4px;
+}
+.resultRank{
+    font-size:65px;
+    font-weight:900;
+    color:#7998ff;
+    margin:5px 0 20px;
+}
+.resultGrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+}
+.resultItem{
+    background:#11182a;
+    border:1px solid #273553;
+    border-radius:13px;
+    padding:16px;
+}
+.resultItem span{
+    display:block;
+    color:#61718f;
+    font-size:11px;
+    margin-bottom:6px;
+}
+.resultItem strong{
+    font-size:22px;
+}
+.restartHint{
+    color:#596988;
+    margin-top:22px;
+}
+
+@media(max-width:750px){
+    .rankButtons{grid-template-columns:repeat(5,1fr)}
+    .fighters{grid-template-columns:1fr}
+    .fighter.enemy{display:none}
+    .battleBody{padding:9px}
+    .resultGrid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+
+<body>
+
+<div id="startScreen">
+    <div class="startWrap">
+        <div class="logo">TYPE BATTLE</div>
+        <div class="logoSub">タイピングで敵を倒せ</div>
+
+        <div class="panel">
+            <div class="titleSmall">ENEMY RANK RANGE</div>
+
+            <div class="rankButtons" id="rankButtons">
+                <button class="rankBtn selected" data-rank="G">G</button>
+                <button class="rankBtn" data-rank="F">F</button>
+                <button class="rankBtn" data-rank="E">E</button>
+                <button class="rankBtn" data-rank="D">D</button>
+                <button class="rankBtn" data-rank="C">C</button>
+                <button class="rankBtn" data-rank="B">B</button>
+                <button class="rankBtn" data-rank="A">A</button>
+                <button class="rankBtn" data-rank="S">S</button>
+                <button class="rankBtn" data-rank="Z">Z</button>
+            </div>
+
+            <div class="selectedInfo">
+                選択中　
+                <strong id="selectedRank">G1〜G4</strong>
+            </div>
+
+            <button class="startButton" id="startButton">
+                BATTLE START
+            </button>
+
+            <div class="startHelp">
+                Sキーでも開始
+            </div>
+
+            <div class="zInfo">
+                <div class="zInfoTitle">Z RANK</div>
+                <p>Z1〜Z10：長文・難読語・複雑な入力</p>
+                <p>Z11〜Z20：科学・歴史・宇宙などの専門テーマ</p>
+                <p>Z21〜：複合テーマ＋超長文</p>
+                <p>Z100以降：さらに長く、難しい文章へ</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="battleScreen">
+    <div class="topbar">
+        <div class="topStat">
+            <span>TIME</span>
+            <strong id="time">30.0</strong>
+        </div>
+        <div class="topStat">
+            <span>PLAYER</span>
+            <strong id="topPlayerRank">G1</strong>
+        </div>
+        <div class="topStat">
+            <span>ENEMY</span>
+            <strong id="topEnemyRank">G1</strong>
+        </div>
+        <div class="topStat">
+            <span>COMBO</span>
+            <strong id="topCombo">0</strong>
+        </div>
+    </div>
+
+    <div class="battleBody">
+
+        <div class="fighters">
+            <div class="fighter">
+                <div class="fighterHeader">
+                    <div class="fighterName">PLAYER</div>
+                    <div class="fighterRank" id="playerRank">G1</div>
+                </div>
+                <div class="hpOuter">
+                    <div class="hpBar playerBar" id="playerHpBar"></div>
+                </div>
+                <div class="hpBottom">
+                    <span>HP</span>
+                    <span id="playerHp">1000 / 1000</span>
+                </div>
+            </div>
+
+            <div class="fighter enemy">
+                <div class="enemyIcon" id="enemyIcon">🟢</div>
+                <div class="fighterHeader">
+                    <div class="fighterName" id="enemyName">SLIME</div>
+                    <div class="fighterRank" id="enemyRank">G1</div>
+                </div>
+                <div class="hpOuter">
+                    <div class="hpBar enemyBar" id="enemyHpBar"></div>
+                </div>
+                <div class="hpBottom">
+                    <span>HP</span>
+                    <span id="enemyHp">500 / 500</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="typingArea">
+            <div class="phraseBox">
+
+                <div class="phraseLabel">CURRENT PHRASE</div>
+
+                <div class="phrase" id="phrase"></div>
+
+                <div class="progressOuter">
+                    <div class="progressBar" id="progressBar"></div>
+                </div>
+
+                <div class="inputInfo">
+                    <span>入力：<strong id="typedDisplay">---</strong></span>
+                    <span>進行：<strong id="progressText">0 / 0</strong></span>
+                </div>
+
+                <div class="romajiBox">
+                    <span class="romajiTyped" id="romajiTyped"></span><span class="romajiRemain" id="romajiRemain"></span>
+                </div>
+
+                <div class="analysis" id="analysis">
+                    入力解析：<b>待機中</b>
+                </div>
+            </div>
+
+            <div class="nextPhrase">
+                NEXT　<span id="nextPhrase">---</span>
+            </div>
+
+            <div class="attackStats">
+                <span>ATTACK <strong id="attack">0</strong></span>
+                <span>COMBO <strong class="comboStrong" id="combo">0</strong></span>
+                <span>KEYS <strong id="keys">0</strong></span>
+            </div>
+
+            <div class="hint">
+                正しい入力で攻撃力上昇。間違えると蓄積した攻撃が自分に返る。
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="resultScreen">
+    <div class="resultPanel">
+        <div class="resultTitle">BATTLE RESULT</div>
+        <div class="resultRank" id="resultRank">G1</div>
+
+        <div class="resultGrid">
+            <div class="resultItem">
+                <span>打鍵数</span>
+                <strong id="resultKeys">0</strong>
+            </div>
+            <div class="resultItem">
+                <span>正確率</span>
+                <strong id="resultAccuracy">0%</strong>
+            </div>
+            <div class="resultItem">
+                <span>平均打鍵速度</span>
+                <strong id="resultSpeed">0.00 key/s</strong>
+            </div>
+            <div class="resultItem">
+                <span>最大コンボ</span>
+                <strong id="resultCombo">0</strong>
+            </div>
+            <div class="resultItem">
+                <span>総ダメージ</span>
+                <strong id="resultDamage">0</strong>
+            </div>
+            <div class="resultItem">
+                <span>敵撃破数</span>
+                <strong id="resultKills">0</strong>
+            </div>
+        </div>
+
+        <div class="restartHint">
+            Sキーで再戦
+        </div>
+    </div>
+</div>
+
+<div id="flash"></div>
+
+<script>
+/* ============================================================
+   TYPE BATTLE
+   ============================================================ */
+
+const $ = id => document.getElementById(id);
+
+let selectedBand = "G";
+
+const rankLetters = ["G","F","E","D","C","B","A","S","Z"];
+
+const rankPower = {
+    G:1,F:2,E:3,D:4,C:5,B:6,A:7,S:8,Z:9
+};
+
+const enemyNames = [
+    ["SLIME","🟢"],
+    ["BYTE WOLF","🐺"],
+    ["TYPE BEAST","👾"],
+    ["KEY DRAGON","🐉"],
+    ["CODE GOLEM","🗿"],
+    ["WORD PHANTOM","👻"],
+    ["DIGITAL KNIGHT","⚔️"],
+    ["DATA TITAN","🤖"],
+    ["VOID MONSTER","👹"],
+    ["TYPING OVERLORD","☠️"]
+];
+
+/* ============================================================
+   大量の文章データ
+   kanaは入力エンジン用
+   ============================================================ */
+
+const PHRASES = {
+
+G:[
+["朝の空気は冷たかった","あさのくうきはつめたかった"],
+["今日は学校へ行く日だ","きょうはがっこうへいくひだ"],
+["窓から明るい光が差し込んだ","まどからあかるいひかりがさしこんだ"],
+["青い空に白い雲が浮かんでいる","あおいそらにしろいくもがうかんでいる"],
+["猫が静かに道を歩いている","ねこがしずかにみちをあるいている"],
+["友達と一緒に公園へ行った","ともだちといっしょにこうえんへいった"],
+["冷たい水を一杯飲んだ","つめたいみずをいっぱいのんだ"],
+["本を机の上に置いた","ほんをつくえのうえにおいた"],
+["明日は晴れるといいな","あしたははれるといいな"],
+["時計の針がゆっくり動いている","とけいのはりがゆっくりうごいている"],
+["駅まで歩いて十分ほどかかった","えきまであるいてじゅっぷんほどかかった"],
+["今日は少し疲れている","きょうはすこしつかれている"],
+["大きな木の下で休んだ","おおきなきのしたでやすんだ"],
+["夕方になると空が赤くなった","ゆうがたになるとそらがあかくなった"],
+["新しい靴を履いて出かけた","あたらしいくつをはいてでかけた"],
+["風が強く吹いている","かぜがつよくふいている"],
+["教室には誰もいなかった","きょうしつにはだれもいなかった"],
+["音楽を聞きながら勉強した","おんがくをききながらべんきょうした"],
+["夏になると海へ行きたくなる","なつになるとうみへいきたくなる"],
+["雨が降ったので傘を持った","あめがふったのでかさをもった"]
+],
+
+F:[
+["学校では毎日いろいろなことを学んでいる","がっこうではまいにちいろいろなことをまなんでいる"],
+["朝食をしっかり食べて一日を始めよう","ちょうしょくをしっかりたべていちにちをはじめよう"],
+["友達と話していると時間がすぐに過ぎていく","ともだちとはなしているとじかんがすぐにすぎていく"],
+["図書館にはたくさんの本が並んでいる","としょかんにはたくさんのほんがならんでいる"],
+["毎日少しずつ努力することが大切だ","まいにちすこしずつどりょくすることがたいせつだ"],
+["分からない問題は先生に質問してみよう","わからないもんだいはせんせいにしつもんしてみよう"],
+["休日には家族と買い物へ出かけることがある","きゅうじつにはかぞくとかいものへでかけることがある"],
+["運動をすると気分がすっきりする","うんどうをするときぶんがすっきりする"],
+["忘れ物をしないように前日の夜に確認する","わすれものをしないようにぜんじつのよるにかくにんする"],
+["計画を立ててから勉強を始めると集中しやすい","けいかくをたててからべんきょうをはじめるとしゅうちゅうしやすい"],
+["好きなことを続けると新しい発見がある","すきなことをつづけるとあたらしいはっけんがある"],
+["失敗したときこそ原因を考えることが重要だ","しっぱいしたときこそげんいんをかんがえることがじゅうようだ"],
+["時間には限りがあるから大切に使いたい","じかんにはかぎりがあるからたいせつにつかいたい"],
+["遠くを見ることで目を休ませることができる","とおくをみることでめをやすませることができる"],
+["一つの目標に向かって仲間と協力する","ひとつのもくひょうにむかってなかまときょうりょくすること"]
+],
+
+E:[
+["季節が変わるたびに町の景色も少しずつ変化していく","きせつがかわるたびにまちのけしきもすこしずつへんかしていく"],
+["新しい知識を身につけるためには実際に試してみることが重要だ","あたらしいちしきをみにつけるためにはじっさいにためしてみることがじゅうようだ"],
+["人によって考え方が違うからこそ話し合う意味がある","ひとによってかんがえかたがちがうからこそはなしあういみがある"],
+["自然の中にはまだ知られていない不思議な現象がたくさん存在する","しぜんのなかにはまだしられていないふしぎなげんしょうがたくさんそんざいする"],
+["毎日の小さな積み重ねが大きな結果につながっていく","まいにちのちいさなつみかさねがおおきなけっかにつながっていく"],
+["情報を集めるだけではなく正しく判断する力も必要になる","じょうほうをあつめるだけではなくただしくはんだんするちからもひつようになる"],
+["目の前にある問題を一つずつ整理して解決していこう","めのまえにあるもんだいをひとつずつせいりしてかいけつしていこう"],
+["新しい環境では最初に周囲の様子を観察することが大切だ","あたらしいかんきょうではさいしょにしゅういのようすをかんさつすることがたいせつだ"],
+["知らない言葉を見つけたら辞書で意味を調べてみよう","しらないことばをみつけたらじしょでいみをしらべてみよう"],
+["何気ない日常の中にも面白い発見が隠れている","なにげないにちじょうのなかにもおもしろいはっけんがかくれている"]
+],
+
+D:[
+["科学の進歩によって私たちの生活は大きく変化してきた","かがくのしんぽによってわたしたちのせいかつはおおきくへんかしてきた"],
+["過去の出来事を学ぶことで現在の社会をより深く理解できる","かこのできごとをまなぶことでげんざいのしゃかいをよりふかくりかいできる"],
+["異なる意見を持つ人同士が対話することで新しい考え方が生まれる","ことなるいけんをもつひとどうしがたいわすることであたらしいかんがえかたがうまれる"],
+["地球上には地域によって大きく異なる気候や生態系が存在している","ちきゅうじょうにはちいきによっておおきくことなるきこうやせいたいけいがそんざいしている"],
+["複雑な問題ほど焦らずに原因を一つずつ確認する必要がある","ふくざつなもんだいほどあせらずにげんいんをひとつずつかくにんするひつようがある"],
+["正確な情報をもとに冷静な判断を下すことが重要である","せいかくなじょうほうをもとにれいせいなはんだんをくだすことがじゅうようである"],
+["人間の記憶は完全ではなく時間とともに変化することがある","にんげんのきおくはかんぜんではなくじかんとともにへんかすることがある"],
+["同じ現象を観察しても立場によって異なる解釈が生まれる","おなじげんしょうをかんさつしてもたちばによってことなるかいしゃくがうまれる"],
+["技術が発展する一方で新たな課題についても考える必要がある","ぎじゅつがはってんするいっぽうであらたなかだいについてもかんがえるひつようがある"],
+["自然環境を守るためには一人一人の行動を変えていくことが求められる","しぜんかんきょうをまもるためにはひとりひとりのこうどうをかえていくことがもとめられる"]
+],
+
+C:[
+["情報技術の発達によって世界中の人々が瞬時に情報を共有できるようになった","じょうほうぎじゅつのはったつによってせかいじゅうのひとびとがしゅんじにじょうほうをきょうゆうできるようになった"],
+["歴史上の重要な出来事には複数の原因が複雑に絡み合っていることが多い","れきしじょうのじゅうようなできごとにはふくすうのげんいんがふくざつにからみあっていることがおおい"],
+["科学的な仮説を検証するためには条件を整理して適切な実験を行わなければならない","かがくてきなかせつをけんしょうするためにはじょうけんをせいりしててきせつなじっけんをおこなわなければならない"],
+["社会の仕組みを理解するためには個人だけでなく集団全体の動きにも注目する必要がある","しゃかいのしくみをりかいするためにはこじんだけでなくしゅうだんぜんたいのうごきにもちゅうもくするひつようがある"],
+["限られた時間の中で複数の課題を効率よく処理するには優先順位を決めることが大切だ","かぎられたじかんのなかでふくすうのかだいをこうりつよくしょりするにはゆうせんじゅんいをきめることがたいせつだ"],
+["未知の現象を解明するためには既存の知識だけに頼らず柔軟な発想を持つことが必要になる","みちのげんしょうをかいめいするためにはきぞんのちしきだけにたよらずじゅうなんなはっそうをもつことがひつようになる"],
+["複数の資料を比較しながら共通点と相違点を整理すると物事の本質が見えやすくなる","ふくすうのしりょうをひかくしながらきょうつうてんとそういてんをせいりするとものごとのほんしつがみえやすくなる"],
+["将来の結果を完全に予測することは難しいが過去のデータから一定の傾向を読み取ることはできる","しょうらいのけっかをかんぜんによそくすることはむずかしいがかこのでーたからいっていのけいこうをよみとることはできる"]
+],
+
+B:[
+["複雑化する現代社会においては膨大な情報の中から必要な知識を選択しそれを適切に活用する能力が求められている","ふくざつかするげんだいしゃかいにおいてはぼうだいなじょうほうのなかからひつようなちしきをせんたくしそれをてきせつにかつようするのうりょくがもとめられている"],
+["一見すると無関係に思える出来事であっても長い時間をかけて観察すると意外な関連性が明らかになる場合がある","いっけんするとむかんけいにおもえるできごとであってもながいじかんをかけてかんさつするといがいなかんれんせいがあきらかになるばあいがある"],
+["問題を解決するためには目の前に現れた結果だけを見るのではなくその背景に存在する原因や条件について慎重に検討する必要がある","もんだいをかいけつするためにはめのまえにあらわれたけっかだけをみるのではなくそのはいけいにそんざいするげんいんやじょうけんについてしんちょうにけんとうするひつようがある"],
+["急速に変化する技術を社会へ導入する際には利便性だけでなく安全性や公平性についても十分に考慮しなければならない","きゅうそくにへんかするぎじゅつをしゃかいへどうにゅうするさいにはりべんせいだけでなくあんぜんせいやこうへいせいについてもじゅうぶんにこうりょしなければならない"],
+["異なる価値観を持つ人々が共存する社会では自分の意見を主張するだけでなく相手の立場を理解しようとする姿勢が欠かせない","ことなるかちかんをもつひとびとがきょうぞんするしゃかいではじぶんのいけんをしゅちょうするだけでなくあいてのたちばをりかいしようとするしせいがかかせない"]
+],
+
+A:[
+["未知なる領域を切り開くためには既存の常識を疑い複数の可能性を比較検討しながら失敗を恐れずに試行錯誤を繰り返す姿勢が不可欠である","みちなるりょういきをきりひらくためにはきそんのじょうしきをうたがいふくすうのかのうせいをひかくけんとうしながらしっぱいをおそれずにしこうさくごをくりかえすしせいがふかけつである"],
+["膨大な情報が瞬時に世界中を駆け巡る現代において本当に価値のある知識を見極めるには情報の出所や根拠を確認し複数の視点から慎重に検証することが重要になる","ぼうだいなじょうほうがしゅんじにせかいじゅうをかけめぐるげんだいにおいてほんとうにかちのあるちしきをみきわめるにはじょうほうのしゅっしょやこんきょをかくにんしふくすうのしてんからしんちょうにけんしょうすることがじゅうようになる"],
+["歴史を振り返ると社会の変化は一つの原因によって起こるのではなく政治経済文化技術など様々な要素が互いに影響し合うことで複雑な結果を生み出していることが分かる","れきしをふりかえるとしゃかいのへんかはひとつのげんいんによっておこるのではなくせいじけいざいぶんかぎじゅつなどさまざまなようそがたがいにえいきょうしあうことでふくざつなけっかをうみだしていることがわかる"],
+["人工知能や自動化技術が急速に発展する未来では人間にしかできない創造性や共感力そして未知の問題に対して問いそのものを作り出す能力がこれまで以上に重要になるだろう","じんこうちのうやじどうかぎじゅつがきゅうそくにはってんするみらいではにんげんにしかできないそうぞうせいやきょうかんりょくそしてみちのもんだいにたいしてといそのものをつくりだすのうりょくがこれまでいじょうにじゅうようになるだろう"]
+],
+
+S:[
+["宇宙空間に存在する無数の恒星や銀河を観測することは単に遠い世界を眺めることではなく私たちが暮らす宇宙そのものの成り立ちを理解する手がかりを得ることにつながっている","うちゅうくうかんにそんざいするむすうのこうせいやぎんがをかんそくすることはたんにとおいせかいをながめることではなくわたしたちがくらすうちゅうそのもののなりたちをりかいするてがかりをえることにつながっている"],
+["生物の進化は単純に強いものが生き残るという仕組みではなく環境の変化や遺伝的な変異そして個体同士の相互作用など複数の要因が長い時間をかけて積み重なった結果として理解されている","せいぶつのしんかはたんじゅんにつよいものがいきのこるというしくみではなくかんきょうのへんかやいでんてきなへんいそしてこたいどうしのそうごさようなどふくすうのよういんがながいじかんをかけてつみかさなったけっかとしてりかいされている"],
+["未来の社会がどのような姿になるのかを正確に予測することはできないが過去から現在までの変化を丁寧に分析することで複数の可能性を想像しそれぞれに備えることはできる","みらいのしゃかいがどのようなすがたになるのかをせいかくによそくすることはできないがかこからげんざいまでのへんかをていねいにぶんせきすることでふくすうのかのうせいをそうぞうしそれぞれにそなえることはできる"],
+["人間がまだ到達したことのない領域を探索するためには高度な技術だけではなく長期間にわたる研究を支える資金や人材そして失敗を受け入れて挑戦を続ける文化が必要不可欠になる","にんげんがまだとうたつしたことのないりょういきをたんさくするためにはこうどなぎじゅつだけではなくちょうきかんにわたるけんきゅうをささえるしきんやじんざいそしてしっぱいをうけいれてちょうせんをつづけるぶんかがひつようふかけつになる"]
+]
+
+};
+
+/* ============================================================
+   Z1〜Z1000
+   ============================================================ */
+
+const Z_BASE = [
+["科学","かがく"],
+["歴史","れきし"],
+["宇宙","うちゅう"],
+["哲学","てつがく"],
+["文学","ぶんがく"],
+["情報技術","じょうほうぎじゅつ"],
+["生物","せいぶつ"],
+["数学","すうがく"],
+["自然","しぜん"]
+];
+
+const Z_SENTENCES = [
+[
+"未知の現象を理解するためには観察によって得られた情報を整理し仮説を立て実験や比較を繰り返しながら少しずつ検証していく必要がある",
+"みちのげんしょうをりかいするためにはかんさつによってえられたじょうほうをせいりしかせつをたてじっけんやひかくをくりかえしながらすこしずつけんしょうしていくひつようがある"
+],
+[
+"歴史上の出来事を正確に理解するためには一つの資料だけを信じるのではなく複数の記録を比較しそれぞれの背景や立場を考慮したうえで慎重に判断することが重要である",
+"れきしじょうのできごとをせいかくにりかいするためにはひとつのしりょうだけをしんじるのではなくふくすうのきろくをひかくしそれぞれのはいけいやたちばをこうりょしたうえでしんちょうにはんだんすることがじゅうようである"
+],
+[
+"宇宙の果てには現在の観測技術では直接確認することのできない領域が存在すると考えられており私たちは限られた情報から宇宙全体の構造や未来について推測を続けている",
+"うちゅうのはてにはげんざいのかんそくぎじゅつではちょくせつかくにんすることのできないりょういきがそんざいするとかんがえられておりわたしたちはかぎられたじょうほうからうちゅうぜんたいのこうぞうやみらいについてすいそくをつづけている"
+],
+[
+"哲学では当たり前だと思っている前提そのものを問い直すことで普段は意識することのない価値観や世界の見方について新たな可能性を考えることができる",
+"てつがくではあたりまえだとおもっているぜんていそのものをといなおすことでふだんはいしきすることのないかちかんやせかいのみかたについてあらたなかのうせいをかんがえることができる"
+],
+[
+"情報技術の進歩によって膨大な量のデータを短時間で処理できるようになった一方で情報の正確性や安全性を確認しながら適切に利用する能力の重要性もますます高まっている",
+"じょうほうぎじゅつのしんぽによってぼうだいなりょうのでーたをたんじかんでしょりできるようになったいっぽうでじょうほうのせいかくせいやあんぜんせいをかくにんしながらてきせつにりようするのうりょくのじゅうようせいもますますたかまっている"
+],
+[
+"生物の世界では一見すると小さな変化であっても長い年月の間に積み重なることで個体の特徴や生態系全体の関係を大きく変化させる可能性がある",
+"せいぶつのせかいではいっけんするとちいさなへんかであってもながいねんげつのあいだにつみかさなることでこたいのとくちょうやせいたいけいぜんたいのかんけいをおおきくへんかさせるかのうせいがある"
+],
+[
+"数学における証明では答えが正しいように見えるという感覚だけでは不十分であり定義や既知の性質を利用して各段階の論理的なつながりを明確に示す必要がある",
+"すうがくにおけるしょうめいではこたえがただしいようにみえるというかんかくだけではふじゅうぶんでありていやきちのせいしつをりようしてかくだんかいのろんりてきなつながりをめいかくにしめすひつようがある"
+],
+[
+"文学作品を読むときには文章に書かれている出来事だけを見るのではなく登場人物の言葉や行動そして描写の細かな変化から作者が示そうとしている意味を考えることができる",
+"ぶんがくさくひんをよむときにはぶんしょうにかかれているできごとだけをみるのではなくとうじょうじんぶつのことばやこうどうそしてびょうしゃのこまかなへんかからさくしゃがしめそうとしているいみをかんがえることができる"
+]
+];
+
+function makeZPhrase(level,index){
+    const base = Z_SENTENCES[index % Z_SENTENCES.length];
+    let text = base[0];
+    let kana = base[1];
+
+    if(level <= 10){
+        const target = 35 + level * 25;
+        let i = 0;
+        while(text.length < target){
+            const extra = Z_SENTENCES[(index+i+1)%Z_SENTENCES.length];
+            text += " " + extra[0];
+            kana += extra[1];
+            i++;
+        }
+        return [text,kana];
+    }
+
+    const themes = [
+        ["科学","かがく"],
+        ["歴史","れきし"],
+        ["宇宙","うちゅう"],
+        ["哲学","てつがく"],
+        ["文学","ぶんがく"],
+        ["情報技術","じょうほうぎじゅつ"],
+        ["生物","せいぶつ"],
+        ["数学","すうがく"],
+        ["自然","しぜん"]
+    ];
+
+    const theme = themes[(level+index)%themes.length];
+
+    const prefixes = [
+        ["さらに重要なのは","さらにじゅうようなのは"],
+        ["ここで注目すべきなのは","ここでちゅうもくすべきなのは"],
+        ["この問題を考えるうえで忘れてはいけないのは","このもんだいをかんがえるうえでわすれてはいけないのは"],
+        ["このような背景を踏まえると","このようなはいけいをふまえると"],
+        ["長期的な視点から考えるならば","ちょうきてきなしてんからかんがえるならば"]
+    ];
+
+    const p = prefixes[(level+index)%prefixes.length];
+
+    text += " " + p[0] + "、" + theme[0] + "に関する問題を単純な一つの原因だけで説明することは難しく、複数の要素が相互に影響し合う過程を丁寧に分析する必要がある。";
+    kana += p[1] + theme[1] + "にかんするもんだいをたんじゅん" +
+        "なひとつのげんいんだけでせつめいすることはむずかしくふくすうのようそがそうごにえいきょうしあうかていをていねんにぶんせきするひつようがある";
+
+    if(level >= 20){
+        text += " " + Z_SENTENCES[(index+3)%Z_SENTENCES.length][0];
+        kana += Z_SENTENCES[(index+3)%Z_SENTENCES.length][1];
+    }
+
+    if(level >= 30){
+        text += " " + Z_SENTENCES[(index+5)%Z_SENTENCES.length][0];
+        kana += Z_SENTENCES[(index+5)%Z_SENTENCES.length][1];
+    }
+
+    if(level >= 50){
+        text += " " + Z_SENTENCES[(index+1)%Z_SENTENCES.length][0];
+        kana += Z_SENTENCES[(index+1)%Z_SENTENCES.length][1];
+    }
+
+    const repeat = Math.min(20,Math.floor(level/20));
+    for(let i=0;i<repeat;i++){
+        const extra=Z_SENTENCES[(index+i+2)%Z_SENTENCES.length];
+        text += " " + extra[0];
+        kana += extra[1];
+    }
+
+    return [text,kana];
+}
+
+function getZPool(level){
+    const pool=[];
+    const count=Math.min(60,Math.max(15,Math.floor(25+level/3)));
+
+    for(let i=0;i<count;i++){
+        pool.push(makeZPhrase(level,i+level*7));
+    }
+
+    return pool;
+}
+
+/* ============================================================
+   ローマ字エンジン
+   ============================================================ */
+
+const ROMAJI = {
+"あ":["a"],"い":["i"],"う":["u"],"え":["e"],"お":["o"],
+"か":["ka"],"き":["ki"],"く":["ku"],"け":["ke"],"こ":["ko"],
+"さ":["sa"],"し":["shi","si"],"す":["su"],"せ":["se"],"そ":["so"],
+"た":["ta"],"ち":["chi","ti"],"つ":["tsu","tu"],"て":["te"],"と":["to"],
+"な":["na"],"に":["ni"],"ぬ":["nu"],"ね":["ne"],"の":["no"],
+"は":["ha"],"ひ":["hi"],"ふ":["fu","hu"],"へ":["he"],"ほ":["ho"],
+"ま":["ma"],"み":["mi"],"む":["mu"],"め":["me"],"も":["mo"],
+"や":["ya"],"ゆ":["yu"],"よ":["yo"],
+"ら":["ra"],"り":["ri"],"る":["ru"],"れ":["re"],"ろ":["ro"],
+"わ":["wa"],"を":["wo","o"],"ん":["n","nn","xn"],
+"が":["ga"],"ぎ":["gi"],"ぐ":["gu"],"げ":["ge"],"ご":["go"],
+"ざ":["za"],"じ":["ji","zi"],"ず":["zu"],"ぜ":["ze"],"ぞ":["zo"],
+"だ":["da"],"ぢ":["ji","di"],"づ":["zu","du","dzu"],"で":["de"],"ど":["do"],
+"ば":["ba"],"び":["bi"],"ぶ":["bu"],"べ":["be"],"ぼ":["bo"],
+"ぱ":["pa"],"ぴ":["pi"],"ぷ":["pu"],"ぺ":["pe"],"ぽ":["po"],
+
+"きゃ":["kya"],"きゅ":["kyu"],"きょ":["kyo"],
+"しゃ":["sha","sya"],"しゅ":["shu","syu"],"しょ":["sho","syo"],
+"ちゃ":["cha","cya","tya"],"ちゅ":["chu","cyu","tyu"],"ちょ":["cho","cyo","tyo"],
+"にゃ":["nya"],"にゅ":["nyu"],"にょ":["nyo"],
+"ひゃ":["hya"],"ひゅ":["hyu"],"ひょ":["hyo"],
+"みゃ":["mya"],"みゅ":["myu"],"みょ":["myo"],
+"りゃ":["rya"],"りゅ":["ryu"],"りょ":["ryo"],
+"ぎゃ":["gya"],"ぎゅ":["gyu"],"ぎょ":["gyo"],
+"じゃ":["ja","jya","zya"],"じゅ":["ju","jyu","zyu"],"じょ":["jo","jyo","zyo"],
+"びゃ":["bya"],"びゅ":["byu"],"びょ":["byo"],
+"ぴゃ":["pya"],"ぴゅ":["pyu"],"ぴょ":["pyo"],
+
+"うぃ":["wi"],"うぇ":["we"],"うぉ":["who"],
+"てぃ":["thi","ti"],"でぃ":["dhi","di"],
+"とぅ":["tu"],"どぅ":["du"],
+"ふぁ":["fa"],"ふぃ":["fi"],"ふぇ":["fe"],"ふぉ":["fo"],
+"ゔぁ":["va"],"ゔぃ":["vi"],"ゔ":["vu"],"ゔぇ":["ve"],"ゔぉ":["vo"]
+};
+
+const basicKana = new Set(Object.keys(ROMAJI));
+
+function normalizeKana(str){
+    return str
+        .replace(/[ァ-ン]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0x60))
+        .replace(/　/g," ")
+        .replace(/ー/g,"-");
+}
+
+function parseKana(kana){
+    kana=normalizeKana(kana);
+    const units=[];
+
+    for(let i=0;i<kana.length;i++){
+        let two=kana.slice(i,i+2);
+
+        if(ROMAJI[two]){
+            units.push({
+                kana:two,
+                candidates:[...ROMAJI[two]]
+            });
+            i++;
+            continue;
+        }
+
+        const one=kana[i];
+
+        if(one==="っ"){
+            units.push({
+                kana:"っ",
+                smallTsu:true,
+                candidates:[]
+            });
+            continue;
+        }
+
+        if(one==="ー"){
+            units.push({
+                kana:"ー",
+                candidates:["-"]
+            });
+            continue;
+        }
+
+        if(one===" "){
+            units.push({
+                kana:" ",
+                candidates:[" "]
+            });
+            continue;
+        }
+
+        if(ROMAJI[one]){
+            units.push({
+                kana:one,
+                candidates:[...ROMAJI[one]]
+            });
+        }
+    }
+
+    return units;
+}
+
+/*
+    現在の入力状態を、
+    「どの候補文字列の途中なのか」
+    という状態集合で管理する。
+*/
+
+let typingStates=[];
+let typedRomaji="";
+let currentUnits=[];
+let currentPhrase=null;
+
+function createStates(){
+    return [{unit:0,pos:0}];
+}
+
+function stateKey(s){
+    return s.unit+":"+s.pos;
+}
+
+function candidateForState(state){
+    if(state.unit>=currentUnits.length)return "";
+    return currentUnits[state.unit].candidates[state.candidateIndex] || "";
+}
+
+function buildInitialStates(){
+    typingStates=[];
+
+    if(currentUnits.length===0)return;
+
+    for(let i=0;i<currentUnits[0].candidates.length;i++){
+        typingStates.push({
+            unit:0,
+            pos:0,
+            candidateIndex:i
+        });
+    }
+
+    typingStates=expandStates(typingStates);
+}
+
+function expandStates(states){
+    let result=[...states];
+    let changed=true;
+
+    while(changed){
+        changed=false;
+
+        for(const s of [...result]){
+            const unit=currentUnits[s.unit];
+            if(!unit)continue;
+
+            const candidate=unit.candidates[s.candidateIndex];
+
+            if(s.pos>=candidate.length && s.unit+1<currentUnits.length){
+                const next=currentUnits[s.unit+1];
+
+                for(let i=0;i<next.candidates.length;i++){
+                    const ns={
+                        unit:s.unit+1,
+                        pos:0,
+                        candidateIndex:i
+                    };
+                    const exists=result.some(x=>
+                        x.unit===ns.unit &&
+                        x.pos===ns.pos &&
+                        x.candidateIndex===ns.candidateIndex
+                    );
+                    if(!exists){
+                        result.push(ns);
+                        changed=true;
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+function getCurrentProgress(){
+    if(!typingStates.length)return 0;
+
+    return Math.max(...typingStates.map(s=>{
+        const unit=currentUnits[s.unit];
+        if(!unit)return currentUnits.length;
+        const candidate=unit.candidates[s.candidateIndex];
+        return s.unit + (s.pos>=candidate.length ? 1 : 0);
+    }));
+}
+
+function getCurrentCandidateLetters(){
+    const list=[];
+
+    for(const s of typingStates){
+        const unit=currentUnits[s.unit];
+        if(!unit)continue;
+        const candidate=unit.candidates[s.candidateIndex];
+        if(s.pos<candidate.length){
+            list.push(candidate.slice(s.pos));
+        }
+    }
+
+    return [...new Set(list)];
+}
+
+function feedKey(key){
+    const lower=key.toLowerCase();
+
+    const nextStates=[];
+
+    for(const s of typingStates){
+        const unit=currentUnits[s.unit];
+        if(!unit)continue;
+
+        const candidate=unit.candidates[s.candidateIndex];
+
+        if(s.pos<candidate.length && candidate[s.pos]===lower){
+            nextStates.push({
+                unit:s.unit,
+                pos:s.pos+1,
+                candidateIndex:s.candidateIndex
+            });
+        }
+    }
+
+    const expanded=expandStates(nextStates);
+
+    if(expanded.length===0){
+        return false;
+    }
+
+    typingStates=expanded;
+    typedRomaji+=lower;
+
+    return true;
+}
+
+function phraseComplete(){
+    return typingStates.some(s=>
+        s.unit>=currentUnits.length-1 &&
+        s.pos>=currentUnits[s.unit].candidates[s.candidateIndex].length
+    );
+}
+
+function romanPreview(){
+    let output="";
+    let completed=getCurrentProgress();
+
+    for(let i=0;i<currentUnits.length;i++){
+        const u=currentUnits[i];
+
+        if(i<completed){
+            output+=u.candidates[0];
+        }else{
+            output+=u.candidates[0];
+        }
+    }
+
+    return output;
+}
+
+/* ============================================================
+   状態
+   ============================================================ */
+
+let running=false;
+let startTime=0;
+let timerId=null;
+let selectedEnemyRank="";
+let enemyHp=0;
+let enemyMaxHp=0;
+let playerHp=1000;
+let playerMaxHp=1000;
+let attack=0;
+let combo=0;
+let maxCombo=0;
+let keys=0;
+let correctKeys=0;
+let totalDamage=0;
+let kills=0;
+let usedPhrases=new Set();
+let phrasePool=[];
+let nextPhraseObj=null;
+
+let playerRankIndex=0;
+let playerDivision=1;
+
+function getPlayerRank(){
+    if(playerRankIndex<8){
+        return rankLetters[playerRankIndex]+playerDivision;
+    }
+    return "Z"+Math.max(1,playerDivision);
+}
+
+function rankValue(rank){
+    const letter=rank[0];
+    const n=parseInt(rank.slice(1))||1;
+
+    if(letter==="Z")return 9+n/10;
+    return rankPower[letter]+(5-n)/10;
+}
+
+function getDifficultyRank(){
+    return rankValue(selectedEnemyRank)>rankValue(getPlayerRank())
+        ?selectedEnemyRank
+        :getPlayerRank();
+}
+
+function randomEnemyRank(){
+    if(selectedBand==="Z"){
+        const level=Math.floor(Math.random()*100)+1;
+        return "Z"+level;
+    }
+
+    return selectedBand+(Math.floor(Math.random()*4)+1);
+}
+
+/* ============================================================
+   phrase pool
+   ============================================================ */
+
+function rankLetterFromRank(rank){
+    return rank[0];
+}
+
+function getPoolForRank(rank){
+    const letter=rankLetterFromRank(rank);
+
+    if(letter!=="Z"){
+        return PHRASES[letter]||PHRASES.G;
+    }
+
+    const level=parseInt(rank.slice(1))||1;
+    return getZPool(level);
+}
+
+function phraseKey(p){
+    return p[0]+"|"+p[1];
+}
+
+function chooseUnusedPhrase(){
+    const difficulty=getDifficultyRank();
+    const pool=getPoolForRank(difficulty);
+
+    const available=pool.filter(p=>!usedPhrases.has(phraseKey(p)));
+
+    if(available.length===0){
+        usedPhrases.clear();
+        const fresh=pool[Math.floor(Math.random()*pool.length)];
+        usedPhrases.add(phraseKey(fresh));
+        return {
+            text:fresh[0],
+            kana:fresh[1]
+        };
+    }
+
+    const p=available[Math.floor(Math.random()*available.length)];
+    usedPhrases.add(phraseKey(p));
+
+    return {
+        text:p[0],
+        kana:p[1]
+    };
+}
+
+function setupPhrase(p){
+    currentPhrase=p;
+    currentUnits=parseKana(p.kana);
+    typedRomaji="";
+    buildInitialStates();
+    updateTypingUI();
+}
+
+/* ============================================================
+   enemy
+   ============================================================ */
+
+function createEnemy(){
+    selectedEnemyRank=randomEnemyRank();
+
+    const v=rankValue(selectedEnemyRank);
+
+    enemyMaxHp=Math.round(400 + v*v*90);
+    enemyHp=enemyMaxHp;
+
+    const data=enemyNames[Math.min(
+        enemyNames.length-1,
+        Math.floor(v)
+    )];
+
+    $("enemyName").textContent=data[0];
+    $("enemyIcon").textContent=data[1];
+
+    $("enemyRank").textContent=selectedEnemyRank;
+    $("topEnemyRank").textContent=selectedEnemyRank;
+
+    updateEnemyUI();
+
+    usedPhrases.clear();
+
+    currentPhrase=chooseUnusedPhrase();
+    nextPhraseObj=chooseUnusedPhrase();
+
+    setupPhrase(currentPhrase);
+    $("nextPhrase").textContent=nextPhraseObj.text;
+}
+
+function updateEnemyUI(){
+    $("enemyHp").textContent=Math.max(0,Math.ceil(enemyHp))+" / "+enemyMaxHp;
+    $("enemyHpBar").style.width=Math.max(0,enemyHp/enemyMaxHp*100)+"%";
+}
+
+function updatePlayerUI(){
+    $("playerHp").textContent=Math.max(0,Math.ceil(playerHp))+" / "+playerMaxHp;
+    $("playerHpBar").style.width=Math.max(0,playerHp/playerMaxHp*100)+"%";
+}
+
+function attackEnemy(){
+    const difficulty=rankValue(getDifficultyRank());
+
+    const damage=Math.max(
+        1,
+        Math.round(
+            10+
+            attack+
+            combo*2+
+            difficulty*2
+        )
+    );
+
+    enemyHp-=damage;
+    totalDamage+=damage;
+
+    updateEnemyUI();
+
+    if(enemyHp<=0){
+        kills++;
+
+        /*
+            敵撃破時のみ文章履歴をリセット。
+            そのため同じ敵との戦闘中は同じ文章が出ない。
+        */
+        usedPhrases.clear();
+
+        createEnemy();
+    }
+}
+
+/* ============================================================
+   mistake reflection
+   ============================================================ */
+
+function reflectAttack(){
+    const reflected=Math.max(1,attack);
+
+    playerHp-=reflected;
+
+    combo=0;
+    attack=0;
+
+    updatePlayerUI();
+
+    $("flash").classList.remove("on");
+    void $("flash").offsetWidth;
+    $("flash").classList.add("on");
+
+    if(playerHp<=0){
+        finishBattle();
+    }
+}
+
+/* ============================================================
+   phrase completion
+   ============================================================ */
+
+function completePhrase(){
+    const difficulty=rankValue(getDifficultyRank());
+
+    combo++;
+    maxCombo=Math.max(maxCombo,combo);
+
+    attack += Math.round(
+        7+
+        difficulty*1.8+
+        combo*0.6
+    );
+
+    attackEnemy();
+
+    if(!running)return;
+
+    /*
+        ここで即座に次の文章へ移行。
+        current phrase / states / typed input を完全リセットする。
+    */
+    currentPhrase=nextPhraseObj;
+    nextPhraseObj=chooseUnusedPhrase();
+
+    setupPhrase(currentPhrase);
+
+    $("nextPhrase").textContent=nextPhraseObj.text;
+}
+
+/* ============================================================
+   UI
+   ============================================================ */
+
+function renderPhrase(){
+    const progress=getCurrentProgress();
+
+    let html="";
+
+    /*
+        kanaではなく表示文章の文字数を使う。
+        日本語の文章とかなの長さは違うので、
+        表示側は文章上の進行割合で表示。
+    */
+
+    const ratio=currentUnits.length
+        ?Math.min(1,progress/currentUnits.length)
+        :0;
+
+    const charProgress=Math.floor(currentPhrase.text.length*ratio);
+
+    for(let i=0;i<currentPhrase.text.length;i++){
+        if(i<charProgress){
+            html+=`<span class="charDone">${escapeHtml(currentPhrase.text[i])}</span>`;
+        }else if(i===charProgress){
+            html+=`<span class="charCurrent">${escapeHtml(currentPhrase.text[i])}</span>`;
+        }else{
+            html+=`<span class="charTodo">${escapeHtml(currentPhrase.text[i])}</span>`;
+        }
+    }
+
+    $("phrase").innerHTML=html;
+
+    $("progressBar").style.width=(ratio*100)+"%";
+
+    $("progressText").textContent=
+        Math.min(progress,currentUnits.length)+
+        " / "+
+        currentUnits.length;
+
+    $("typedDisplay").textContent=typedRomaji||"---";
+
+    const candidates=getCurrentCandidateLetters();
+
+    $("analysis").innerHTML=
+        candidates.length
+        ?`入力解析：<b>${escapeHtml(candidates.slice(0,6).join(" / "))}</b>`
+        :`入力解析：<b>完了</b>`;
+
+    let fullRoman=romanPreview();
+
+    $("romajiTyped").textContent=typedRomaji;
+    $("romajiRemain").textContent=
+        fullRoman.slice(typedRomaji.length);
+
+    $("attack").textContent=attack;
+    $("combo").textContent=combo;
+    $("topCombo").textContent=combo;
+    $("keys").textContent=keys;
+}
+
+function updateTypingUI(){
+    renderPhrase();
+}
+
+function updateTopUI(){
+    $("playerRank").textContent=getPlayerRank();
+    $("topPlayerRank").textContent=getPlayerRank();
+
+    $("attack").textContent=attack;
+    $("combo").textContent=combo;
+    $("topCombo").textContent=combo;
+    $("keys").textContent=keys;
+}
+
+/* ============================================================
+   battle
+   ============================================================ */
+
+function startBattle(){
+    if(running)return;
+
+    running=true;
+
+    $("startScreen").style.display="none";
+    $("resultScreen").style.display="none";
+    $("battleScreen").style.display="block";
+
+    playerHp=playerMaxHp;
+    attack=0;
+    combo=0;
+    maxCombo=0;
+    keys=0;
+    correctKeys=0;
+    totalDamage=0;
+    kills=0;
+    usedPhrases.clear();
+
+    startTime=performance.now();
+
+    updatePlayerUI();
+    updateTopUI();
+
+    createEnemy();
+
+    clearInterval(timerId);
+
+    timerId=setInterval(()=>{
+        const elapsed=(performance.now()-startTime)/1000;
+        const remaining=Math.max(0,30-elapsed);
+
+        $("time").textContent=remaining.toFixed(1);
+
+        if(remaining<=0){
+            finishBattle();
+        }
+    },50);
+}
+
+function finishBattle(){
+    if(!running)return;
+
+    running=false;
+    clearInterval(timerId);
+
+    const elapsed=Math.min(
+        30,
+        Math.max(.001,(performance.now()-startTime)/1000)
+    );
+
+    const accuracy=keys
+        ?correctKeys/keys*100
+        :0;
+
+    const speed=keys/elapsed;
+
+    const score=
+        totalDamage+
+        kills*100+
+        maxCombo*10+
+        accuracy*2+
+        speed*10;
+
+    /*
+        簡易ランク評価。
+        戦闘結果によってプレイヤーランクが少し上昇する。
+    */
+    if(score>1200){
+        increasePlayerRank();
+    }else if(score>750){
+        playerDivision++;
+        normalizePlayerRank();
+    }
+
+    $("resultRank").textContent=getPlayerRank();
+    $("resultKeys").textContent=keys;
+    $("resultAccuracy").textContent=accuracy.toFixed(1)+"%";
+    $("resultSpeed").textContent=speed.toFixed(2)+" key/s";
+    $("resultCombo").textContent=maxCombo;
+    $("resultDamage").textContent=totalDamage;
+    $("resultKills").textContent=kills;
+
+    $("battleScreen").style.display="none";
+    $("resultScreen").style.display="flex";
+}
+
+function increasePlayerRank(){
+    playerDivision++;
+
+    normalizePlayerRank();
+}
+
+function normalizePlayerRank(){
+    if(playerRankIndex<8){
+        if(playerDivision>4){
+            playerDivision=1;
+            playerRankIndex++;
+        }
+    }else{
+        /*
+            S4の次はZ1。
+            Z以降はZ1,Z2,Z3...と無限に上昇。
+        */
+        if(playerDivision>4){
+            playerDivision=1;
+            playerRankIndex=8;
+        }
+    }
+}
+
+function restart(){
+    $("resultScreen").style.display="none";
+    $("startScreen").style.display="block";
+    $("time").textContent="30.0";
+}
+
+/* ============================================================
+   keyboard
+   ============================================================ */
+
+document.addEventListener("keydown",e=>{
+
+    /*
+        スタート画面・結果画面ではSで開始/再戦。
+        戦闘中はSも普通のローマ字として扱う。
+    */
+
+    if(!running){
+        if(e.key.toLowerCase()==="s"){
+            if($("resultScreen").style.display==="flex"){
+                restart();
+            }else{
+                startBattle();
+            }
+        }
+        return;
+    }
+
+    /*
+        日本語入力IMEではなく、
+        実キーボードから直接一文字ずつ取得する。
+    */
+    if(e.key.length!==1)return;
+
+    const key=e.key.toLowerCase();
+
+    if(!/^[a-z\- ]$/.test(key))return;
+
+    e.preventDefault();
+
+    keys++;
+
+    const accepted=feedKey(key);
+
+    if(accepted){
+        correctKeys++;
+
+        /*
+            正しい文字ごとに少しずつ攻撃力を蓄積。
+        */
+        attack+=1+Math.floor(combo/10);
+
+        if(phraseComplete()){
+            completePhrase();
+        }else{
+            updateTypingUI();
+        }
+    }else{
+        /*
+            「MISS」は表示しない。
+            現在までに蓄積した攻撃だけが自分へ返る。
+        */
+        reflectAttack();
+
+        /*
+            ミスした文章は最初からやり直す。
+        */
+        if(running){
+            setupPhrase(currentPhrase);
+        }
+    }
+
+    updateTopUI();
+});
+
+/* ============================================================
+   rank selection
+   ============================================================ */
+
+document.querySelectorAll(".rankBtn").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+        document.querySelectorAll(".rankBtn")
+            .forEach(x=>x.classList.remove("selected"));
+
+        btn.classList.add("selected");
+
+        selectedBand=btn.dataset.rank;
+
+        if(selectedBand==="Z"){
+            $("selectedRank").textContent="Z1〜Z∞";
+        }else{
+            $("selectedRank").textContent=
+                selectedBand+"1〜"+selectedBand+"4";
+        }
+    });
+});
+
+$("startButton").addEventListener("click",startBattle);
+
+/* ============================================================
+   utility
+   ============================================================ */
+
+function escapeHtml(str){
+    return String(str)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+/* ============================================================
+   初期化
+   ============================================================ */
+
+$("selectedRank").textContent="G1〜G4";
+$("playerRank").textContent=getPlayerRank();
+$("topPlayerRank").textContent=getPlayerRank();
+
+</script>
+</body>
+</html>
